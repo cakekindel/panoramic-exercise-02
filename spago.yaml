@@ -1,0 +1,13 @@
+package:
+  name: panoramic-exercise-02
+  dependencies:
+    - aff
+    - console
+    - effect
+    - ezfetch
+    - halogen
+    - prelude
+workspace:
+  packageSet:
+    registry: 62.2.5
+  extraPackages: {}
