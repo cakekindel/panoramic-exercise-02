@@ -11,9 +11,7 @@ const js = sources
 const html = sources.filter(f => f.endsWith('.html'))
 const css = sources.filter(f => f.endsWith('.css'))
 const json = ['package.json', 'jsconfig.json']
-const yml = sources
-  .filter(f => f.endsWith('.yaml'))
-  .concat(['spago.yaml'])
+const yml = sources.filter(f => f.endsWith('.yaml')).concat(['spago.yaml'])
 
 /** @type {(parser: string, ps: string[]) => import("bun").ShellPromise} */
 const prettier = (parser, ps) =>

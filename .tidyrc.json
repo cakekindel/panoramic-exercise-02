@@ -2,7 +2,6 @@
   "importSort": "source",
   "importWrap": "auto",
   "indent": 2,
-  "operatorsFile": ".tidyrc.operators",
   "ribbon": 1,
   "typeArrowPlacement": "last",
   "unicode": "never",
