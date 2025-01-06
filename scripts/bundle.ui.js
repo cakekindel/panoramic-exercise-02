@@ -4,12 +4,10 @@ import Path from 'path'
 import File from 'fs/promises'
 import * as Bundle from './bundle.common.js'
 
-const prod = (() => {
-  const scriptIx = process.argv.findIndex(a => a.endsWith('bundle.ui.js'))
-  return process.argv[scriptIx + 1] === '--prod'
-})()
-
-const [mainJs] = await Bundle.prepare({ prod, modules: ['Core.UI.Main'] })
+const [mainJs] = await Bundle.prepare({
+  prod,
+  modules: ['ACMECorp.Dog.Web.Main'],
+})
 
 await $`mkdir -p public`
 await $`cp -R ui/static/* public/`

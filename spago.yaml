@@ -6,7 +6,13 @@ package:
     - effect
     - ezfetch
     - halogen
+    - lists
     - prelude
+  test:
+    main: Test.Main
+    dependencies:
+      - spec
+      - spec-node
 workspace:
   packageSet:
     registry: 62.2.5
