@@ -3,7 +3,6 @@ module.exports = {
     files: ['./src/**/*.purs'],
   },
   theme: {
-    colors,
     extend: {
       fontFamily: {
         sans: ['"Inter"', 'sans-serif'],

@@ -2,7 +2,7 @@ import File from 'fs/promises'
 import Path from 'path'
 import Process from 'process'
 
-/** @type {(o: {prod: boolean, modules: string[]}) => Promise<string[]>} */
+/** @type {(o: {modules: string[]}) => Promise<string[]>} */
 export const prepare = async ({ modules }) => {
   const indexs = modules.map(m =>
     Path.resolve(Process.cwd(), 'output', m, 'index.js'),

@@ -2,6 +2,7 @@ module Dog.Breed where
 
 import Prelude
 
+import Control.Alternative (empty)
 import Data.Array as Array
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as Array.NonEmpty
@@ -103,6 +104,10 @@ lookup id' breeds =
 -- | Modify the data associated with the given id
 update :: forall a. (a -> a) -> Id -> Breeds a -> Breeds a
 update f id' = mapWithIndex $ \id'' a -> if id'' == id' then f a else a
+
+-- | Put a new state for the given id
+put :: forall a. a -> Id -> Breeds a -> Breeds a
+put a = update (const a)
 
 -- | Modify the data associated with the given id
 mapWithIndex :: forall a b. (Id -> a -> b) -> Breeds a -> Breeds b
@@ -267,12 +272,15 @@ isDirectDescendantOf (Id as) (Id bs) =
   (Array.NonEmpty.length as > Array.NonEmpty.length bs)
     && all (\(a /\ b) -> a == b) (Array.NonEmpty.zip as bs)
 
+-- | Construct a breed id from segments
+idFromSegments :: NonEmptyArray String -> Id
+idFromSegments = wrap <<< map (String.trim <<< String.toLower)
+
 -- | Parse a breed id from a string with hyphen-separated hierarchical segments
 idFromString :: String -> Maybe Id
 idFromString =
-  map wrap
+  map idFromSegments
     <<< Array.NonEmpty.fromArray
-    <<< map (String.trim <<< String.toLower)
     <<< String.split (String.Pattern "-")
     <<< String.trim
 
@@ -282,7 +290,14 @@ idToString = Array.NonEmpty.intercalate "-" <<< unwrap
 
 -- | Human-readable display string from id
 idDisplay :: Id -> String
-idDisplay =
+idDisplay id' = fromMaybe (idDisplay' $ unwrap id') (idDisplayOverride id')
+
+-- | Convert id to URL path segments
+idToPathSegments :: Id -> String
+idToPathSegments (Id as) = Array.NonEmpty.intercalate "/" as
+
+idDisplay' :: NonEmptyArray String -> String
+idDisplay' =
   let
     capitalizeChars cs =
       fromMaybe []
@@ -293,4 +308,14 @@ idDisplay =
       (String.Pattern "")
   in
     Array.NonEmpty.intercalate " " <<< Array.NonEmpty.reverse <<< map capitalize
-      <<< unwrap
+
+idDisplayOverride :: Id -> Maybe String
+idDisplayOverride (Id as) =
+  if as == pure "danish" <> pure "swedish" then
+    pure "Danish-Swedish Farm Dog"
+  else if as == pure "pointer" <> pure "germanlonghair" then
+    pure "German Longhaired Pointer"
+  else if Array.NonEmpty.head as == "australian" then
+    pure $ idDisplay' $ Array.NonEmpty.reverse as
+  else
+    empty

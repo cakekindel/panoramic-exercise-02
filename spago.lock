@@ -10,8 +10,14 @@
             "effect",
             "ezfetch",
             "halogen",
+            "halogen-vdom",
             "lists",
-            "prelude"
+            "now",
+            "parallel",
+            "prelude",
+            "record",
+            "url-immutable",
+            "variant"
           ],
           "build_plan": [
             "aff",

@@ -12,12 +12,5 @@
     "noEmit": true,
     "strict": true
   },
-  "include": [
-    "./scripts/*.js",
-    "ui-serve/**/*.js",
-    "api/**/*.js",
-    "ui/**/*.js",
-    "aws/**/*.js",
-    "logging/**/*.js"
-  ]
+  "include": ["./scripts/*.js", "./*.js", "./src/**/*.js"]
 }

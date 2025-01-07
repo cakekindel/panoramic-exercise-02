@@ -6,8 +6,14 @@ package:
     - effect
     - ezfetch
     - halogen
+    - halogen-vdom
     - lists
+    - now
+    - parallel
     - prelude
+    - record
+    - url-immutable
+    - variant
   test:
     main: Test.Main
     dependencies:
