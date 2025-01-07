@@ -29,3 +29,14 @@ See https://dog.ceo/dog-api/documentation/ for general Api documentation. Write 
 </details>
 
 ## Output
+Hosted on [Github Pages](https://cakekindel.github.io/panoramic-exercise-02/)
+
+Built in / with:
+ - [PureScript Halogen](https://github.com/purescript-halogen/purescript-halogen)
+ - [tailwindcss](https://tailwindcss.com)
+ - [bun](https://bun.sh)
+ - typescript (for .js file typechecking)
+
+Note that the [`Breed`](./src/Dog.Breed.purs) tree structure and UI are agnostic to the max
+depth in the breed hierarchy, and that if the Dog CEO API were to return higher levels of nesting
+than the 1 seen in the current API, this repo could be minimally changed to update.
