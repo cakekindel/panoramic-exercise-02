@@ -61,7 +61,7 @@ type Action = Variant
 main :: Effect Unit
 main = Halogen.Aff.runHalogenAff
   $ Halogen.Aff.awaitBody
-    >>= Halogen.Driver.VDom.runUI component unit
+      >>= Halogen.Driver.VDom.runUI component unit
 
 component ::
   forall q i o m.
@@ -70,13 +70,13 @@ component ::
   Halogen.Component q i o m
 component =
   Halogen.mkComponent
-  { initialState: const $ Variant.X.inj_ @"loading"
-  , render
-  , eval: Halogen.mkEval $ Halogen.defaultEval
-      { handleAction = handleAction
-      , initialize = Just $ Variant.X.inj_ @"init"
-      }
-  }
+    { initialState: const $ Variant.X.inj_ @"loading"
+    , render
+    , eval: Halogen.mkEval $ Halogen.defaultEval
+        { handleAction = handleAction
+        , initialize = Just $ Variant.X.inj_ @"init"
+        }
+    }
 
 render :: forall w. State -> HTML w Action
 render =
@@ -130,7 +130,7 @@ render =
             [ div
                 [ class_ $ wrap
                     $ "text-stone-400 flex flex-row p-4 rounded-lg gap-4 "
-                      <> "border-4 border-stone-200 items-center"
+                        <> "border-4 border-stone-200 items-center"
                 ]
                 [ span
                     [ class_ $ wrap
@@ -276,8 +276,8 @@ render =
                                   [ class_
                                       $ wrap
                                       $ "h-full w-full grid grid-flow-col "
-                                      <> "grid-columns-[repeat(4,1fr)] "
-                                      <> "grid-rows-[repeat(5,1fr)]"
+                                          <> "grid-columns-[repeat(4,1fr)] "
+                                          <> "grid-rows-[repeat(5,1fr)]"
                                   ]
                                   $ map
                                       ( \url ->
@@ -285,7 +285,7 @@ render =
                                             [ class_
                                                 $ wrap
                                                 $ "rounded-lg h-full w-full "
-                                                  <> "object-contain"
+                                                    <> "object-contain"
                                             , src $ URL.toString url
                                             ]
                                       )
@@ -312,70 +312,89 @@ handleAction ::
   HalogenM State Action slots output m Unit
 handleAction =
   Variant.match
-    { init: const do
-        ( Dog.API.breeds
-            >>= (liftEither <<< lmap error)
-            <#> (map $ map $ const $ 0 /\ Set.empty)
-        )
-          # minDuration (Milliseconds 1000.0)
-          >>=
-            ( Halogen.put
-                <<< Variant.X.inj @"loaded"
-                <<< (\breeds -> { breeds, activeBreed: Nothing })
-            )
-
-    , clickBreed: \(ev /\ id) -> do
-        ev # Event.Mouse.toEvent # Event.preventDefault # liftEffect
-        Halogen.modify_
-          $ Variant.X.modify @"loaded"
-          $ Record.X.set @"activeBreed"
-          $ Just id
-
-        imageCount <- Halogen.get
-          <#> Variant.X.prj @"loaded"
-          >>= liftMaybe (error "unreachable")
-          <#> Record.X.get @"breeds"
-          <#> Dog.Breed.lookup id
-          >>= liftMaybe (error "unreachable")
-          <#> snd
-          <#> Set.size
-
-        when
-          (imageCount == 0)
-          $
-            ( Dog.API.allImages id
-                >>= (liftEither <<< lmap error)
-                # liftAff
-            )
-              # minDuration (Milliseconds 1000.0)
-              <#> (0 /\ _)
-              >>=
-                ( Halogen.modify_
-                    <<< Variant.X.modify @"loaded"
-                    <<< Record.X.modify @"breeds"
-                    <<< flip Dog.Breed.put id
-                )
-
-    , clickImageShift: \(ev /\ dir) -> do
+    { init: const $
         let
-          updateOffset =
+          fetchBreeds =
+            Dog.API.breeds
+              >>= (liftEither <<< lmap error)
+
+          initBreedState ::
+            Dog.Breeds Unit -> Dog.Breeds (ImagePageOffset /\ Set ImageURL)
+          initBreedState = map $ map $ const $ 0 /\ Set.empty
+
+          putBreeds =
+            Halogen.put
+              <<< Variant.X.inj @"loaded"
+              <<< (\breeds -> { breeds, activeBreed: Nothing })
+        in
+          ( fetchBreeds
+              # minDuration (Milliseconds 1000.0)
+              <#> initBreedState
+          )
+            >>= putBreeds
+
+    , clickBreed: \(ev /\ id) ->
+        let
+          setActiveBreed =
+            Halogen.modify_
+              $ Variant.X.modify @"loaded"
+              $ Record.X.set @"activeBreed"
+              $ Just id
+          activeBreedImageCount =
+            Halogen.get
+              <#> Variant.X.prj @"loaded"
+              >>= liftMaybe (error "unreachable")
+              <#> Record.X.get @"breeds"
+              <#> Dog.Breed.lookup id
+              >>= liftMaybe (error "unreachable")
+              <#> snd
+              <#> Set.size
+          fetchImages =
+            Dog.API.allImages id
+              >>= (liftEither <<< lmap error)
+              # liftAff
+          putImages =
+            Halogen.modify_
+              <<< Variant.X.modify @"loaded"
+              <<< Record.X.modify @"breeds"
+              <<< flip Dog.Breed.put id
+              <<< (0 /\ _)
+          preventDefault =
+            ev
+              # Event.Mouse.toEvent
+              # Event.preventDefault
+              # liftEffect
+        in
+          preventDefault
+            *> setActiveBreed
+            *> whenM
+              (activeBreedImageCount <#> (_ == 0))
+              (fetchImages # minDuration (Milliseconds 1000.0) >>= putImages)
+
+    , clickImageShift: \(ev /\ dir) ->
+        let
+          modifyPage =
             case dir of
               ShiftLeft -> (_ - 1)
               ShiftRight -> (_ + 1)
-
-        ev # Event.Mouse.toEvent # Event.preventDefault # liftEffect
-
-        active <-
-          Halogen.get
-            <#> Variant.X.prj @"loaded"
-            >>= liftMaybe (error "unreachable")
-            <#> Record.X.get @"activeBreed"
-            >>= liftMaybe (error "unreachable")
-
-        Halogen.modify_
-          $ Variant.X.modify @"loaded"
-          $ Record.X.modify @"breeds"
-          $ Dog.Breed.update (lmap updateOffset) active
+          preventDefault =
+            ev
+              # Event.Mouse.toEvent
+              # Event.preventDefault
+              # liftEffect
+          getActiveBreedId =
+            Halogen.get
+              <#> Variant.X.prj @"loaded"
+              >>= liftMaybe (error "unreachable")
+              <#> Record.X.get @"activeBreed"
+              >>= liftMaybe (error "unreachable")
+          updateImagePage =
+            Halogen.modify_
+              <<< Variant.X.modify @"loaded"
+              <<< Record.X.modify @"breeds"
+              <<< Dog.Breed.update (lmap modifyPage)
+        in
+          preventDefault *> getActiveBreedId >>= updateImagePage
     }
 
 -- | Avoid spinner flashes by adding a minimum amount of time
