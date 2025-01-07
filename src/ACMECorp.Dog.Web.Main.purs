@@ -375,7 +375,7 @@ handleAction =
 
     , clickImageShift: \(ev /\ dir) ->
         let
-          modifyPage =
+          incrOrDecr =
             case dir of
               ShiftLeft -> (_ - 1)
               ShiftRight -> (_ + 1)
@@ -390,13 +390,13 @@ handleAction =
               >>= liftMaybe (error "unreachable")
               <#> Record.X.get @"activeBreed"
               >>= liftMaybe (error "unreachable")
-          updateImagePage =
+          updatePage =
             Halogen.modify_
               <<< Variant.X.modify @"loaded"
               <<< Record.X.modify @"breeds"
-              <<< Dog.Breed.update (lmap modifyPage)
+              <<< Dog.Breed.update (lmap incrOrDecr)
         in
-          preventDefault *> getActiveBreedId >>= updateImagePage
+          preventDefault *> getActiveBreedId >>= updatePage
     }
 
 -- | Avoid spinner flashes by adding a minimum amount of time

@@ -1,3 +1,5 @@
+-- | I am allergic to writing explicit proxy constructors
+-- | now that visible type application exists <3
 module Data.Variant.Extra where
 
 import Prelude

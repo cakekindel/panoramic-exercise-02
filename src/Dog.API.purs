@@ -1,3 +1,4 @@
+-- | Dog CEO API
 module Dog.API where
 
 import Prelude hiding ((/))
@@ -24,7 +25,7 @@ import Effect.Aff.HTTP as HTTP
 import Effect.Aff.HTTP.Response as HTTP.Rep
 import Effect.Class (liftEffect)
 import Foreign.Object (Object)
-import Partial.Unsafe (unsafeCrashWith, unsafePartial)
+import Partial.Unsafe (unsafePartial)
 
 baseURI :: URL
 baseURI = unsafePartial $ fromJust $ URL.fromString $ "https://dog.ceo/api"
@@ -73,12 +74,6 @@ breeds = Except.runExceptT do
     # Array.NonEmpty.fromArray
     # liftMaybe "No breeds returned!"
     <#> Breed.fromIds
-
-randomImage :: forall m. MonadAff m => Breed.Id -> m URL
-randomImage = unsafeCrashWith "unimplemented"
-
-randomImages :: forall m. MonadAff m => Int -> Breed.Id -> m (Set URL)
-randomImages = unsafeCrashWith "unimplemented"
 
 allImages :: forall m. MonadAff m => Breed.Id -> m (Either String (Set URL))
 allImages id =

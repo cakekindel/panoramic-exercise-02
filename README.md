@@ -42,3 +42,6 @@ Built in / with:
 Note that the [`Breed`](./src/Dog.Breed.purs) tree structure and UI are agnostic to the max
 depth in the breed hierarchy, and that if the Dog CEO API were to return higher levels of nesting
 than the 1 seen in the current API, this repo could be minimally changed to update.
+
+Investing in this core abstraction ended up being a very good choice, as it moves a lot of complexity
+out of the main module (which philosophically wants just to be a reactive ui and nothing more).

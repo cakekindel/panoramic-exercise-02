@@ -1,3 +1,5 @@
+-- | I am allergic to writing explicit proxy constructors
+-- | now that visible type application exists <3
 module Record.Extra where
 
 import Data.Symbol (class IsSymbol)
