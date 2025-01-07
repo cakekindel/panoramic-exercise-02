@@ -198,110 +198,112 @@ render =
                 , contentNoneSelected
                 ]
       , loaded: \{ breeds, activeBreed } ->
-          page
-            [ navbar
-                $ map (breedCard activeBreed)
-                $ Array.NonEmpty.toArray
-                $ breeds
+          let
+            maybeActiveBreed = do
+              active <- activeBreed
+              offset /\ images <- Dog.Breed.lookup active breeds
 
-            , fromMaybe contentNoneSelected do
-                active <- activeBreed
-                offset /\ images <- Dog.Breed.lookup active breeds
+              let
+                shiftButton dir =
+                  let
+                    disabled' =
+                      case dir of
+                        ShiftLeft -> offset <= 0
+                        ShiftRight -> (offset + 1) * 20 >= Set.size images
+                    iconClass =
+                      case dir of
+                        ShiftLeft -> "icon--solar--arrow-left-bold"
+                        ShiftRight -> "icon--solar--arrow-right-bold"
+                    dirText =
+                      case dir of
+                        ShiftLeft -> "Back"
+                        ShiftRight -> "Next"
+                    icon = span
+                      [ class_ $ wrap $ "text-6xl icon--solar " <> iconClass ]
+                      []
+                    text' = h2 [ class_ $ wrap "text-4xl font-bold " ]
+                      [ text dirText ]
+                    contents' = case dir of
+                      ShiftLeft -> [ icon, text' ]
+                      ShiftRight -> [ text', icon ]
+                  in
+                    button
+                      [ class_
+                          $ wrap
+                          $
+                            "justify-center items-center grow rounded-lg flex p-2 gap-4 "
+                              <>
+                                "transition-[transform,background] duration-100 "
+                              <> "text-stone-800 "
+                              <> "disabled:bg-stone-200 "
+                              <> "disabled:text-stone-400 "
+                              <> "disabled:cursor-not-allowed "
+                              <> "[&:not(:disabled)]:bg-orange-200 "
+                              <> "[&:not(:disabled):hover]:bg-orange-300 "
+                              <> "[&:not(:disabled):active]:bg-orange-400 "
+                              <> "[&:not(:disabled):active]:scale-[0.975] "
+                      , disabled disabled'
+                      , onClick \ev -> Variant.X.inj @"clickImageShift"
+                          (ev /\ dir)
+                      ]
+                      contents'
 
-                let
-                  shiftButton dir =
-                    let
-                      disabled' =
-                        case dir of
-                          ShiftLeft -> offset <= 0
-                          ShiftRight -> (offset + 1) * 20 >= Set.size images
-                      iconClass =
-                        case dir of
-                          ShiftLeft -> "icon--solar--arrow-left-bold"
-                          ShiftRight -> "icon--solar--arrow-right-bold"
-                      dirText =
-                        case dir of
-                          ShiftLeft -> "Back"
-                          ShiftRight -> "Next"
-                      icon = span
-                        [ class_ $ wrap $ "text-6xl icon--solar " <> iconClass ]
-                        []
-                      text' = h2 [ class_ $ wrap "text-4xl font-bold " ]
-                        [ text dirText ]
-                      contents' = case dir of
-                        ShiftLeft -> [ icon, text' ]
-                        ShiftRight -> [ text', icon ]
-                    in
-                      button
-                        [ class_
-                            $ wrap
-                            $
-                              "justify-center items-center grow rounded-lg flex p-2 gap-4 "
-                                <>
-                                  "transition-[transform,background] duration-100 "
-                                <> "text-stone-800 "
-                                <> "disabled:bg-stone-200 "
-                                <> "disabled:text-stone-400 "
-                                <> "disabled:cursor-not-allowed "
-                                <> "[&:not(:disabled)]:bg-orange-200 "
-                                <> "[&:not(:disabled):hover]:bg-orange-300 "
-                                <> "[&:not(:disabled):active]:bg-orange-400 "
-                                <> "[&:not(:disabled):active]:scale-[0.975] "
-                        , disabled disabled'
-                        , onClick \ev -> Variant.X.inj @"clickImageShift"
-                            (ev /\ dir)
+              pure $
+                if Set.size images == 0 then
+                  content
+                    [ div
+                        [ class_ $ wrap
+                            "h-full w-full flex items-center justify-center"
                         ]
-                        contents'
-
-                pure $
-                  if Set.size images == 0 then
-                    content
-                      [ div
-                          [ class_ $ wrap
-                              "h-full w-full flex items-center justify-center"
-                          ]
-                          [ spinner ]
-                      ]
-                  else
-                    content
-                      [ div
-                          [ class_ $ wrap "h-full flex flex-col gap-4 p-4" ]
-                          [ h1
-                              [ class_ $ wrap
-                                  "text-4xl font-black text-stone-800"
-                              ]
-                              [ text $ Dog.Breed.idDisplay active ]
-                          , div [ class_ $ wrap "grow overflow-hidden" ]
-                              [ div
-                                  [ class_
-                                      $ wrap
-                                      $ "h-full w-full grid grid-flow-col "
-                                          <> "grid-columns-[repeat(4,1fr)] "
-                                          <> "grid-rows-[repeat(5,1fr)]"
-                                  ]
-                                  $ map
-                                      ( \url ->
-                                          img
-                                            [ class_
-                                                $ wrap
-                                                $ "rounded-lg h-full w-full "
-                                                    <> "object-contain"
-                                            , src $ URL.toString url
-                                            ]
-                                      )
-                                  $ Array.take 20
-                                  $ Array.drop (offset * 20)
-                                  $ Array.fromFoldable
-                                  $ images
-                              ]
-                          , div
-                              [ class_ $ wrap "w-full p-4 flex gap-4" ]
-                              [ shiftButton ShiftLeft
-                              , shiftButton ShiftRight
-                              ]
-                          ]
-                      ]
-            ]
+                        [ spinner ]
+                    ]
+                else
+                  content
+                    [ div
+                        [ class_ $ wrap "h-full flex flex-col gap-4 p-4" ]
+                        [ h1
+                            [ class_ $ wrap
+                                "text-4xl font-black text-stone-800"
+                            ]
+                            [ text $ Dog.Breed.idDisplay active ]
+                        , div [ class_ $ wrap "grow overflow-hidden" ]
+                            [ div
+                                [ class_
+                                    $ wrap
+                                    $ "h-full w-full grid grid-flow-col "
+                                        <> "grid-columns-[repeat(4,1fr)] "
+                                        <> "grid-rows-[repeat(5,1fr)]"
+                                ]
+                                $ map
+                                    ( \url ->
+                                        img
+                                          [ class_
+                                              $ wrap
+                                              $ "rounded-lg h-full w-full "
+                                                  <> "object-contain"
+                                          , src $ URL.toString url
+                                          ]
+                                    )
+                                $ Array.take 20
+                                $ Array.drop (offset * 20)
+                                $ Array.fromFoldable
+                                $ images
+                            ]
+                        , div
+                            [ class_ $ wrap "w-full p-4 flex gap-4" ]
+                            [ shiftButton ShiftLeft
+                            , shiftButton ShiftRight
+                            ]
+                        ]
+                    ]
+          in
+            page
+              [ navbar
+                  $ map (breedCard activeBreed)
+                  $ Array.NonEmpty.toArray
+                  $ breeds
+              , fromMaybe contentNoneSelected maybeActiveBreed
+              ]
       }
 
 handleAction ::
