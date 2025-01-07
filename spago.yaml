@@ -1,19 +1,38 @@
 package:
   name: panoramic-exercise-02
+  build:
+    strict: true
+    pedanticPackages: true
   dependencies:
     - aff
-    - console
+    - argonaut-codecs
+    - argonaut-core
+    - arrays
+    - bifunctors
+    - control
+    - datetime
     - effect
+    - either
+    - exceptions
     - ezfetch
+    - foldable-traversable
+    - foreign-object
     - halogen
-    - halogen-vdom
-    - lists
+    - maybe
+    - newtype
     - now
-    - parallel
+    - ordered-collections
+    - partial
     - prelude
     - record
+    - strings
+    - transformers
+    - tuples
+    - typelevel-prelude
     - url-immutable
     - variant
+    - web-events
+    - web-uievents
   test:
     main: Test.Main
     dependencies:

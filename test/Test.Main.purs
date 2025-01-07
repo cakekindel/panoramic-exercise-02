@@ -4,12 +4,10 @@ import Prelude
 
 import Control.Monad.Error.Class (liftMaybe)
 import Data.Array.NonEmpty as Array.NonEmpty
-import Data.FunctorWithIndex (mapWithIndex)
 import Data.Traversable (traverse)
 import Dog.Breed (Breed(..), Breeds)
 import Dog.Breed as Breed
 import Effect (Effect)
-import Effect.Aff (launchAff_)
 import Effect.Exception (error)
 import Test.Spec (describe, it)
 import Test.Spec.Assertions (shouldEqual)

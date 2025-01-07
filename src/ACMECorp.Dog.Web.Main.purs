@@ -40,12 +40,14 @@ import Web.Event.Event as Event
 import Web.UIEvent.MouseEvent (MouseEvent)
 import Web.UIEvent.MouseEvent as Event.Mouse
 
+type ImageURL = URL
+type ImagePageOffset = Int
 data ImageShiftDir = ShiftLeft | ShiftRight
 
 type State = Variant
   ( loading :: Unit
   , loaded ::
-      { breeds :: Dog.Breeds (Int /\ Set URL)
+      { breeds :: Dog.Breeds (ImagePageOffset /\ Set ImageURL)
       , activeBreed :: Maybe Dog.Breed.Id
       }
   )
@@ -57,13 +59,17 @@ type Action = Variant
   )
 
 main :: Effect Unit
-main = Halogen.Aff.runHalogenAff do
-  body <- Halogen.Aff.awaitBody
-  Halogen.Driver.VDom.runUI component unit body
+main = Halogen.Aff.runHalogenAff
+  $ Halogen.Aff.awaitBody
+    >>= Halogen.Driver.VDom.runUI component unit
 
 component ::
-  forall q i o m. MonadThrow Error m => MonadAff m => Halogen.Component q i o m
-component = Halogen.mkComponent
+  forall q i o m.
+  MonadThrow Error m =>
+  MonadAff m =>
+  Halogen.Component q i o m
+component =
+  Halogen.mkComponent
   { initialState: const $ Variant.X.inj_ @"loading"
   , render
   , eval: Halogen.mkEval $ Halogen.defaultEval
@@ -123,7 +129,8 @@ render =
         [ div [ class_ $ wrap "h-full w-full flex justify-center items-center" ]
             [ div
                 [ class_ $ wrap
-                    "text-stone-400 flex flex-row p-4 rounded-lg gap-4 border-4 border-stone-200 items-center"
+                    $ "text-stone-400 flex flex-row p-4 rounded-lg gap-4 "
+                      <> "border-4 border-stone-200 items-center"
                 ]
                 [ span
                     [ class_ $ wrap
@@ -145,7 +152,8 @@ render =
         (Dog.Breed.BreedNode id _ children) ->
           div
             [ class_ $ wrap $ "flex flex-col gap-1 w-full" ]
-            [ h2 [ class_ $ wrap $ "text-stone-500 text-xl font-bold" ]
+            [ h2
+                [ class_ $ wrap $ "text-stone-500 text-xl font-bold" ]
                 [ text $ Dog.Breed.idDisplay id ]
             , div
                 [ class_ $ wrap $ "flex flex-row gap-2 w-full pl-1" ]
@@ -191,8 +199,11 @@ render =
                 ]
       , loaded: \{ breeds, activeBreed } ->
           page
-            [ navbar $ map (breedCard activeBreed) $ Array.NonEmpty.toArray $
-                breeds
+            [ navbar
+                $ map (breedCard activeBreed)
+                $ Array.NonEmpty.toArray
+                $ breeds
+
             , fromMaybe contentNoneSelected do
                 active <- activeBreed
                 offset /\ images <- Dog.Breed.lookup active breeds
@@ -262,14 +273,19 @@ render =
                               [ text $ Dog.Breed.idDisplay active ]
                           , div [ class_ $ wrap "grow overflow-hidden" ]
                               [ div
-                                  [ class_ $ wrap
-                                      "h-full w-full grid grid-flow-col grid-columns-[repeat(4,1fr)] grid-rows-[repeat(5,1fr)]"
+                                  [ class_
+                                      $ wrap
+                                      $ "h-full w-full grid grid-flow-col "
+                                      <> "grid-columns-[repeat(4,1fr)] "
+                                      <> "grid-rows-[repeat(5,1fr)]"
                                   ]
                                   $ map
                                       ( \url ->
                                           img
-                                            [ class_ $ wrap
-                                                "rounded-lg h-full w-full object-contain"
+                                            [ class_
+                                                $ wrap
+                                                $ "rounded-lg h-full w-full "
+                                                  <> "object-contain"
                                             , src $ URL.toString url
                                             ]
                                       )
@@ -359,9 +375,11 @@ handleAction =
         Halogen.modify_
           $ Variant.X.modify @"loaded"
           $ Record.X.modify @"breeds"
-          $ Dog.Breed.update (\(off /\ a) -> updateOffset off /\ a) active
+          $ Dog.Breed.update (lmap updateOffset) active
     }
 
+-- | Avoid spinner flashes by adding a minimum amount of time
+-- | doing async work `m` takes.
 minDuration :: forall m a. MonadAff m => Milliseconds -> m a -> m a
 minDuration min m = do
   start <- liftEffect Now.now
