@@ -43,8 +43,9 @@ type Breeds a = NonEmptyArray (Breed a)
 -- breed is a leaf node.
 --
 -- This would allow O(log(n)) time lookups (O(1) if using HashMap)
--- at the cost of less expressive types and more plumbing code to keep
--- the visible API surface respecting the tree-like nature of this data.
+-- at the cost of the data structure not matching the graph representation of
+-- the data, and potentially more plumbing code to keep the visible API surface
+-- respecting the tree-like nature of this data.
 --
 -- If both the scale of data & importance of expressive type design were high,
 -- this could also be converted to a BTree map representation or similar to get

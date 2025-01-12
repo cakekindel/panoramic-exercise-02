@@ -39,6 +39,9 @@ Built in / with:
 - [bun](https://bun.sh)
 - typescript (for .js file typechecking)
 
+I've left documentation in `ACMECorp.Dog.Web.Main` explaining some of the rationale
+behind specific decisions and stylistic choices, and what would be different in a production system.
+
 Note that the [`Breed`](./src/Dog.Breed.purs) tree structure and UI are agnostic to the max
 depth in the breed hierarchy, and that if the Dog CEO API were to return higher levels of nesting
 than the 1 seen in the current API, this repo could be minimally changed to update.
