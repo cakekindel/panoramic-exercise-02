@@ -7,6 +7,7 @@ import Prim.Row (class Cons, class Lacks)
 import Record as R
 import Type.Prelude (Proxy(..))
 
+-- | Wrapper of `Record.insert` using visible type application instead of `Proxy`.
 insert ::
   forall @l @r1 @r2 a.
   IsSymbol l =>
@@ -17,6 +18,7 @@ insert ::
   Record r2
 insert = R.insert (Proxy @l)
 
+-- | Wrapper of `Record.modify` using visible type application instead of `Proxy`.
 modify ::
   forall @l @r1 @r2 r a b.
   IsSymbol l =>
@@ -27,6 +29,7 @@ modify ::
   Record r2
 modify = R.modify (Proxy @l)
 
+-- | Wrapper of `Record.set` using visible type application instead of `Proxy`.
 set ::
   forall @l r1 r2 r a b.
   IsSymbol l =>
@@ -37,6 +40,7 @@ set ::
   Record r2
 set = R.set (Proxy @l)
 
+-- | Wrapper of `Record.get` using visible type application instead of `Proxy`.
 get ::
   forall @l r r' a.
   IsSymbol l =>
@@ -45,6 +49,7 @@ get ::
   a
 get = R.get (Proxy @l)
 
+-- | Wrapper of `Record.delete` using visible type application instead of `Proxy`.
 delete ::
   forall r1 r2 @l a.
   IsSymbol l =>
@@ -54,6 +59,7 @@ delete ::
   Record r1
 delete = R.delete (Proxy @l)
 
+-- | Wrapper of `Record.rename` using visible type application instead of `Proxy`.
 rename ::
   forall @prev @next ty input inter output.
   IsSymbol prev =>
