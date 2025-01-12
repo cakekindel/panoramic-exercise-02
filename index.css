@@ -572,6 +572,10 @@ video {
   margin-bottom: 0.5rem;
 }
 
+.block{
+  display: block;
+}
+
 .flex{
   display: flex;
 }
@@ -582,6 +586,10 @@ video {
 
 .contents{
   display: contents;
+}
+
+.hidden{
+  display: none;
 }
 
 .h-\[8rem\]{
